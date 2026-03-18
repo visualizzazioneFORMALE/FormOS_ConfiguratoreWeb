@@ -319,6 +319,8 @@ function initControls() {
   controls.minDistance = 0.5;
   controls.maxDistance = 8;
   controls.maxPolarAngle = Math.PI / 2 + 0.1;
+  controls.autoRotate = false;
+  controls.autoRotateSpeed = 0.4;
   controls.update();
 }
 
@@ -499,6 +501,24 @@ function resetAll() {
 }
 
 /* ============================================================
+   AUTO-ROTATE (starts after 30s of inactivity)
+   ============================================================ */
+const AUTO_ROTATE_DELAY = 30000;
+let autoRotateTimer = null;
+
+function startAutoRotateTimer() {
+  clearTimeout(autoRotateTimer);
+  autoRotateTimer = setTimeout(() => {
+    controls.autoRotate = true;
+  }, AUTO_ROTATE_DELAY);
+}
+
+function stopAutoRotate() {
+  controls.autoRotate = false;
+  startAutoRotateTimer();
+}
+
+/* ============================================================
    ANIMATION LOOP
    ============================================================ */
 function animate() {
@@ -538,6 +558,14 @@ async function init() {
   // Esponi camera per lettura posizione
   window.__camera = camera;
   window.__controls = controls;
+
+  // Start auto-rotate countdown
+  startAutoRotateTimer();
+
+  // Any user interaction resets the timer and stops auto-rotate
+  ['pointerdown', 'pointermove', 'wheel', 'keydown'].forEach(evt => {
+    window.addEventListener(evt, stopAutoRotate, { passive: true });
+  });
 
   animate();
 }
