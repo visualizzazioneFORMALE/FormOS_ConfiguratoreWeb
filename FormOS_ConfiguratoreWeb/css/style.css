@@ -1,0 +1,486 @@
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg:              #ffffff;
+  --surface:         rgba(255, 255, 255, 0.96);
+  --surface-hover:   rgba(245, 245, 248, 0.98);
+  --border:          rgba(197, 17, 83, 0.18);
+  --border-strong:   rgba(197, 17, 83, 0.45);
+  --text-primary:    #1a1a1a;
+  --text-secondary:  #7a7a7a;
+  --accent:          #c51153;
+  --accent-glow:     rgba(197, 17, 83, 0.15);
+  --panel-width:     256px;
+  --panel-radius:    14px;
+  --swatch-size:     34px;
+  --transition:      0.18s ease;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #ffffff;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   CANVAS CONTAINER
+   ============================================================ */
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#canvas-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ============================================================
+   LOADING OVERLAY
+   ============================================================ */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.6s ease;
+}
+
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-spinner {
+  width: 44px;
+  height: 44px;
+  border: 2.5px solid rgba(197, 17, 83, 0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   CONFIG PANEL
+   ============================================================ */
+.config-panel {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--panel-width);
+  max-height: 82vh;
+  z-index: 10;
+
+  background: var(--surface);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow:
+    0 4px 6px rgba(197,17,83,0.06),
+    0 12px 40px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+
+  animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-50%) translateX(-16px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* Panel Header */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.panel-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+}
+
+/* Reset button */
+#btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.02em;
+}
+
+#btn-reset:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#btn-reset:active {
+  transform: scale(0.96);
+}
+
+/* Panel Sections — scrollable */
+.panel-sections {
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.panel-sections::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-sections::-webkit-scrollbar-track {
+  background: transparent;
+}
+.panel-sections::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+/* Light Control */
+.light-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 8px;
+  border-top: 1px solid var(--border);
+}
+
+.light-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#light-angle {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(197, 17, 83, 0.18);
+  outline: none;
+  cursor: pointer;
+}
+
+#light-angle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c51153;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  transition: transform 0.15s ease;
+}
+
+#light-angle::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+#light-angle::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c51153;
+  border: none;
+  cursor: pointer;
+}
+
+/* Panel Footer */
+.panel-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.hint-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   ACCORDION SECTIONS
+   ============================================================ */
+.config-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.config-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition);
+}
+
+.section-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.section-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
+
+.config-section.active .section-label {
+  color: var(--text-primary);
+}
+
+.section-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+  transition: transform 0.22s ease, color var(--transition);
+  flex-shrink: 0;
+}
+
+.config-section.expanded .section-arrow {
+  transform: rotate(180deg);
+  color: var(--text-primary);
+}
+
+.section-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 16px 14px;
+  overflow: hidden;
+  transition: all 0.22s ease;
+}
+
+.section-body.collapsed {
+  display: none;
+}
+
+/* ============================================================
+   SWATCHES
+   ============================================================ */
+.swatch-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.swatch {
+  width: var(--swatch-size);
+  height: var(--swatch-size);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Special pattern for "inherit" swatches */
+.swatch.swatch-inherit {
+  background: conic-gradient(#888 0deg 180deg, #444 180deg 360deg) !important;
+  opacity: 0.75;
+}
+
+.swatch:hover {
+  transform: scale(1.18);
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,0.2),
+    0 0 0 3px rgba(197, 17, 83, 0.35),
+    0 4px 12px rgba(0,0,0,0.15);
+}
+
+.swatch.swatch--active {
+  border-color: #c51153;
+  transform: scale(1.12);
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,0.2),
+    0 0 0 1px rgba(197, 17, 83, 0.7),
+    0 4px 16px rgba(0,0,0,0.15);
+}
+
+.swatch-label {
+  font-size: 9px;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  text-align: center;
+  max-width: 46px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.swatch-wrap:hover .swatch-label,
+.swatch-wrap:has(.swatch--active) .swatch-label {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* Tooltip on swatch hover */
+.swatch-wrap[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 28, 0.95);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   ORBIT HINT
+   ============================================================ */
+#orbit-hint {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+#orbit-hint.hidden {
+  opacity: 0;
+}
+
+/* ============================================================
+   SELECTED MESH INDICATOR (panel highlight)
+   ============================================================ */
+.config-section.highlighted .section-header {
+  background: rgba(91, 135, 255, 0.06);
+}
+
+.config-section.highlighted .section-label {
+  color: var(--accent);
+}
+
+/* ============================================================
+   RESPONSIVE — narrow panels on small viewports
+   ============================================================ */
+@media (max-width: 520px) {
+  :root {
+    --panel-width: calc(100vw - 32px);
+  }
+
+  .config-panel {
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 16px;
+    transform: none;
+    max-height: 52vh;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  #orbit-hint {
+    bottom: calc(52vh + 24px);
+  }
+}
