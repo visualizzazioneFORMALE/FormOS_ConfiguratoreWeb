@@ -612,17 +612,8 @@ async function onARButtonClick() {
 }
 
 async function checkARSupport() {
-  const btn = document.getElementById('btn-ar');
-  // Show on any touch device (iOS, Android, tablet)
-  if (navigator.maxTouchPoints > 0) {
-    btn.style.display = 'flex';
-    return;
-  }
-  // Also show on desktop if WebXR AR is supported
-  if (navigator.xr) {
-    const ok = await navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
-    if (ok) btn.style.display = 'flex';
-  }
+  // Always show — unsupported devices get an alert on tap
+  document.getElementById('btn-ar').style.display = 'flex';
 }
 
 /* ============================================================
