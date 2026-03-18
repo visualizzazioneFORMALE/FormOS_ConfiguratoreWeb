@@ -613,8 +613,12 @@ async function onARButtonClick() {
 
 async function checkARSupport() {
   const btn = document.getElementById('btn-ar');
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIOS) { btn.style.display = 'flex'; return; }
+  // Show on any touch device (iOS, Android, tablet)
+  if (navigator.maxTouchPoints > 0) {
+    btn.style.display = 'flex';
+    return;
+  }
+  // Also show on desktop if WebXR AR is supported
   if (navigator.xr) {
     const ok = await navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
     if (ok) btn.style.display = 'flex';
@@ -653,6 +657,13 @@ async function init() {
   setupLighting();
   setupEnvironment();
 
+  // AR button — show before model loads so it's always visible on compatible devices
+  await checkARSupport();
+  document.getElementById('btn-ar').addEventListener('click', onARButtonClick);
+  document.getElementById('btn-ar-exit').addEventListener('click', () => {
+    renderer.xr.getSession()?.end();
+  });
+
   await loadChair();
 
   // Apply default materials to classified meshes
@@ -679,12 +690,6 @@ async function init() {
   // Any user interaction resets the timer and stops auto-rotate
   ['pointerdown', 'wheel', 'keydown'].forEach(evt => {
     window.addEventListener(evt, stopAutoRotate, { passive: true });
-  });
-
-  await checkARSupport();
-  document.getElementById('btn-ar').addEventListener('click', onARButtonClick);
-  document.getElementById('btn-ar-exit').addEventListener('click', () => {
-    renderer.xr.getSession()?.end();
   });
 
   renderer.setAnimationLoop(animate);
