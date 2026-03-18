@@ -58,6 +58,13 @@ let renderer, scene, camera, controls;
 let meshMap = {};
 let allMeshes = [];
 let hoveredMesh = null;
+let chairRoot = null;
+
+// AR state
+let xrHitTestSource = null;
+let arReticle = null;
+let arChairPlaced = false;
+let arOriginalPosition = null;
 const pointer = new THREE.Vector2(-9999, -9999);
 const raycaster = new THREE.Raycaster();
 const HOVER_EMISSIVE = new THREE.Color(0x303030);
@@ -267,6 +274,7 @@ function loadChair() {
         const box2 = new THREE.Box3().setFromObject(gltf.scene);
         gltf.scene.position.y -= box2.min.y;
 
+        chairRoot = gltf.scene;
         scene.add(gltf.scene);
 
         // Update camera target to model centre
@@ -299,6 +307,7 @@ function initRenderer() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
+  renderer.xr.enabled = true;
   document.getElementById('canvas-container').appendChild(renderer.domElement);
 }
 
@@ -309,7 +318,7 @@ function initScene() {
 
 function initCamera() {
   camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
-  camera.position.set(2.552, 1.529, 2.084);
+  camera.position.set(-2.037, 1.529, 2.528);
 }
 
 function initControls() {
@@ -519,12 +528,117 @@ function stopAutoRotate() {
 }
 
 /* ============================================================
+   AR — REALTÀ AUMENTATA
+   ============================================================ */
+function createARReticle() {
+  const geo = new THREE.RingGeometry(0.12, 0.15, 32);
+  geo.rotateX(-Math.PI / 2);
+  const reticle = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  reticle.matrixAutoUpdate = false;
+  reticle.visible = false;
+  return reticle;
+}
+
+async function startARWebXR() {
+  try {
+    const session = await navigator.xr.requestSession('immersive-ar', {
+      requiredFeatures: ['hit-test'],
+      optionalFeatures: ['dom-overlay'],
+      domOverlay: { root: document.getElementById('ar-overlay') },
+    });
+
+    renderer.xr.setReferenceSpaceType('local');
+    await renderer.xr.setSession(session);
+
+    const viewerSpace = await session.requestReferenceSpace('viewer');
+    xrHitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+
+    arReticle = createARReticle();
+    scene.add(arReticle);
+    arChairPlaced = false;
+
+    if (chairRoot) {
+      arOriginalPosition = chairRoot.position.clone();
+      chairRoot.visible = false;
+    }
+
+    document.getElementById('ar-overlay').style.display = 'flex';
+    document.getElementById('panel').style.display = 'none';
+
+    session.addEventListener('select', () => {
+      if (arReticle?.visible && !arChairPlaced && chairRoot) {
+        const pos = new THREE.Vector3();
+        pos.setFromMatrixPosition(arReticle.matrix);
+        chairRoot.position.copy(pos);
+        chairRoot.visible = true;
+        arReticle.visible = false;
+        arChairPlaced = true;
+        document.getElementById('ar-hint').style.display = 'none';
+      }
+    });
+
+    session.addEventListener('end', () => {
+      if (arReticle) { scene.remove(arReticle); arReticle = null; }
+      xrHitTestSource = null;
+      arChairPlaced = false;
+      if (chairRoot && arOriginalPosition) {
+        chairRoot.position.copy(arOriginalPosition);
+        chairRoot.visible = true;
+      }
+      document.getElementById('ar-hint').style.display = '';
+      document.getElementById('ar-overlay').style.display = 'none';
+      document.getElementById('panel').style.display = '';
+    });
+
+  } catch (err) {
+    console.error('[AR] Errore:', err);
+    alert('AR non disponibile: ' + err.message);
+  }
+}
+
+function triggerIOSQuickLook() {
+  document.getElementById('ar-ios-link').click();
+}
+
+async function onARButtonClick() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) { triggerIOSQuickLook(); return; }
+
+  if (navigator.xr) {
+    const supported = await navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
+    if (supported) { startARWebXR(); return; }
+  }
+  alert('La realtà aumentata non è supportata su questo dispositivo o browser.');
+}
+
+async function checkARSupport() {
+  const btn = document.getElementById('btn-ar');
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) { btn.style.display = 'flex'; return; }
+  if (navigator.xr) {
+    const ok = await navigator.xr.isSessionSupported('immersive-ar').catch(() => false);
+    if (ok) btn.style.display = 'flex';
+  }
+}
+
+/* ============================================================
    ANIMATION LOOP
    ============================================================ */
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  updateHover();
+function animate(time, frame) {
+  if (renderer.xr.isPresenting && frame && xrHitTestSource && arReticle) {
+    const refSpace = renderer.xr.getReferenceSpace();
+    const hits = frame.getHitTestResults(xrHitTestSource);
+    if (hits.length > 0 && !arChairPlaced) {
+      const pose = hits[0].getPose(refSpace);
+      arReticle.visible = true;
+      arReticle.matrix.fromArray(pose.transform.matrix);
+    } else {
+      arReticle.visible = false;
+    }
+  } else {
+    controls.update();
+    updateHover();
+  }
   renderer.render(scene, camera);
 }
 
@@ -563,11 +677,17 @@ async function init() {
   startAutoRotateTimer();
 
   // Any user interaction resets the timer and stops auto-rotate
-  ['pointerdown', 'pointermove', 'wheel', 'keydown'].forEach(evt => {
+  ['pointerdown', 'wheel', 'keydown'].forEach(evt => {
     window.addEventListener(evt, stopAutoRotate, { passive: true });
   });
 
-  animate();
+  await checkARSupport();
+  document.getElementById('btn-ar').addEventListener('click', onARButtonClick);
+  document.getElementById('btn-ar-exit').addEventListener('click', () => {
+    renderer.xr.getSession()?.end();
+  });
+
+  renderer.setAnimationLoop(animate);
 }
 
 window.addEventListener('resize', onResize);

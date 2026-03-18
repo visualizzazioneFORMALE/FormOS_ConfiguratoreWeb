@@ -68,7 +68,30 @@
         </svg>
         Clicca sulla sedia per selezionare
       </span>
+      <button id="btn-ar" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        Vedi in AR
+      </button>
+      <!-- Link nascosto per iOS Quick Look -->
+      <a id="ar-ios-link" rel="ar" href="TARGETPOINT_VovoChair.usdz" style="display:none">
+        <img src="" alt="">
+      </a>
     </div>
+  </div>
+
+  <!-- AR Overlay (visible only during WebXR session) -->
+  <div id="ar-overlay" style="display:none">
+    <button id="btn-ar-exit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      Esci
+    </button>
+    <p id="ar-hint">Punta la camera verso il pavimento, poi tocca per posizionare la sedia</p>
   </div>
 
   <!-- Orbit hint (disappears on first interaction) -->
