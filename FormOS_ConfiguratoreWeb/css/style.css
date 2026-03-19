@@ -530,24 +530,103 @@ html, body {
    ============================================================ */
 @media (max-width: 520px) {
   :root {
-    --panel-width: calc(100vw - 32px);
+    --swatch-size: 30px;
   }
 
+  /* Panel: barra fissa in basso, altezza automatica */
   .config-panel {
-    left: 16px;
-    right: 16px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     top: auto;
-    bottom: 16px;
+    width: 100%;
     transform: none;
-    max-height: 52vh;
+    max-height: none;
+    border-radius: 14px 14px 0 0;
   }
 
   @keyframes slideIn {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  /* Header compatto */
+  .panel-header {
+    padding: 10px 14px 8px;
+  }
+
+  /* Ogni sezione = riga orizzontale [label | swatches scrollabili →] */
+  .config-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    padding: 0 0 0 14px;
+    min-width: 76px;
+    flex-shrink: 0;
+    pointer-events: none;
+    cursor: default;
+    border: none;
+    background: none !important;
+  }
+
+  .section-arrow {
+    display: none;
+  }
+
+  /* Swatches: riga orizzontale scorrevole */
+  .section-body {
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 14px 10px 8px;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .section-body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Forza visibilità anche se collapsed (accordion disabilitato su mobile) */
+  .section-body.collapsed {
+    display: flex !important;
+  }
+
+  /* Nascondi label testuale sotto i swatches (spazio ridotto) */
+  .swatch-label {
+    display: none;
+  }
+
+  /* Light control compatto */
+  .light-control {
+    padding: 6px 14px;
+  }
+
+  /* Footer: riga orizzontale */
+  .panel-footer {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px;
+    gap: 10px;
+  }
+
+  .hint-text {
+    display: none;
+  }
+
+  #btn-ar {
+    flex: 1;
+  }
+
+  /* Orbit hint: in alto al centro (non più coperto dal pannello) */
   #orbit-hint {
-    bottom: calc(52vh + 24px);
+    bottom: auto;
+    top: 16px;
   }
 }
