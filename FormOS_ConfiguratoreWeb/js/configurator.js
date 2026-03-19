@@ -517,7 +517,7 @@ function resetAll() {
 /* ============================================================
    AUTO-ROTATE (starts after 30s of inactivity)
    ============================================================ */
-const AUTO_ROTATE_DELAY = 30000;
+const AUTO_ROTATE_DELAY = 2000;
 let autoRotateTimer = null;
 
 function startAutoRotateTimer() {
