@@ -318,7 +318,12 @@ function initScene() {
 
 function initCamera() {
   camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
-  camera.position.set(-2.037, 1.529, 2.528);
+  const isMobile = window.innerWidth <= 520;
+  if (isMobile) {
+    camera.position.set(-4.0, 1.2, 4.9);
+  } else {
+    camera.position.set(-2.037, 1.529, 2.528);
+  }
 }
 
 function initControls() {
