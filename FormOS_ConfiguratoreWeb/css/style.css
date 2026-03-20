@@ -465,7 +465,8 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Tooltip on swatch hover */
+/* Tooltip on swatch hover — solo su dispositivi con mouse reale */
+@media (hover: hover) and (pointer: fine) {
 .swatch-wrap[title]:hover::after {
   content: attr(title);
   position: absolute;
@@ -483,6 +484,7 @@ html, body {
   z-index: 20;
   letter-spacing: 0.02em;
 }
+} /* end @media hover */
 
 /* ============================================================
    ORBIT HINT
@@ -603,9 +605,6 @@ html, body {
     display: none !important;
   }
 
-  .swatch-wrap[title]:hover::after {
-    display: none !important;
-  }
 
   /* Light control compatto */
   .light-control {
