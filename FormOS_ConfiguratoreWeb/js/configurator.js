@@ -317,7 +317,7 @@ function initScene() {
 }
 
 function initCamera() {
-  camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 60);
   const isMobile = window.innerWidth <= 520;
   if (isMobile) {
     camera.position.set(-4.0, 1.2, 4.9);
@@ -517,7 +517,7 @@ function resetAll() {
 /* ============================================================
    AUTO-ROTATE (starts after 30s of inactivity)
    ============================================================ */
-const AUTO_ROTATE_DELAY = 2000;
+const AUTO_ROTATE_DELAY = 100;
 let autoRotateTimer = null;
 
 function startAutoRotateTimer() {
