@@ -596,10 +596,14 @@ html, body {
     display: flex !important;
   }
 
-  /* Nascondi label testuale sotto i swatches (spazio ridotto) */
+  /* Nascondi label testuale e tooltip sotto/sopra i swatches */
   .swatch-label,
   .swatch-wrap:hover .swatch-label,
   .swatch-wrap:has(.swatch--active) .swatch-label {
+    display: none !important;
+  }
+
+  .swatch-wrap[title]:hover::after {
     display: none !important;
   }
 
