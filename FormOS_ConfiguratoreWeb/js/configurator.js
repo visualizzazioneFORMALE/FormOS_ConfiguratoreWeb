@@ -320,9 +320,9 @@ function initCamera() {
   camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 60);
   const isMobile = window.innerWidth <= 520;
   if (isMobile) {
-    camera.position.set(-4.0, 1.2, 4.9);
+    camera.position.set(4.072, 1.2, -4.876);
   } else {
-    camera.position.set(-2.037, 1.529, 2.528);
+    camera.position.set(2.109, 1.529, -2.504);
   }
 }
 
