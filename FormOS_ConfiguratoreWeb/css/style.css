@@ -597,8 +597,10 @@ html, body {
   }
 
   /* Nascondi label testuale sotto i swatches (spazio ridotto) */
-  .swatch-label {
-    display: none;
+  .swatch-label,
+  .swatch-wrap:hover .swatch-label,
+  .swatch-wrap:has(.swatch--active) .swatch-label {
+    display: none !important;
   }
 
   /* Light control compatto */
